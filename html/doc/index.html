@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="main">
+        <div class="left">
+          <el-input
+            placeholder="请输入内容"
+            prefix-icon="el-icon-search"
+            v-model="actionSearchKey"
+          >
+          </el-input>
+
+          <el-menu style="margin-top: 20px; min-height: 90vh">
+            <el-submenu
+              v-for="(action,index) in actions"
+              v-if="actionSearchKey == '' || action.keys.indexOf(actionSearchKey) != -1"
+              :index="index+''"
+            >
+              <template slot="title">
+                {{action.actionName}} {{action.comment}}
+              </template>
+              <el-menu-item
+                v-for="(method,mindex) in action.methodDocInfos"
+                :key="mindex"
+                :index="index+''+mindex"
+                @click="selectMethod(method)"
+              >
+                {{method.methodName}} {{method.comment}}
+              </el-menu-item>
+            </el-submenu>
+          </el-menu>
+        </div>
+        <div class="right">
+          <el-radio-group v-model="platformType" size="small" @change="loadData">
+            <el-radio-button :label="0">我们</el-radio-button>
+            <el-radio-button :label="1">格力</el-radio-button>
+          </el-radio-group>
+          <div v-if="curMethod != null">
+            <h2>{{curMethod.methodName}} {{curMethod.comment}}</h2>
+            <h2>
+              接口路径[<span style="color: orange"
+                >{{curMethod.methodType}}</span
+              >]: /{{curMethod.actionMapperUrl}}/{{curMethod.methodName}}
+            </h2>
+            <el-tabs value="first">
+              <el-tab-pane label="测试" name="first">
+                <el-form :inline="true" >
+                  <el-form-item label="请求头" >
+                    <el-input
+                      type="textarea"
+                      style="width:350px"
+                      v-model="headers"
+                      placeholder="请求头"
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item label="服务端地址">
+                    <el-input
+                      v-model="server_url"
+                      placeholder="服务端地址"
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="doRequest"
+                      >测试接口</el-button
+                    >
+                  </el-form-item>
+                </el-form>
+
+                <div style="margin-top: 20px">
+                  <h2>返回值：</h2>
+                  <el-input
+                    type="textarea"
+                    v-model="retVal"
+                    :autosize="{ minRows: 6}"
+                  ></el-input>
+                </div>
+
+                <el-table :data="curMethod.paramDocInfos" style="width: 100%">
+                  <el-table-column type="index"> </el-table-column>
+                  <el-table-column prop="fieldName" label="参数" width="180">
+                  </el-table-column>
+                  <el-table-column
+                    prop="simpleTypeName"
+                    label="类型"
+                    width="180"
+                  >
+                    <template slot-scope="scope">
+                      {{scope.row.simpleTypeName}}<span
+                        v-if="scope.row.arrayType"
+                        >[]数组</span
+                      >
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="comment" label="注释" width="180">
+                  </el-table-column>
+                  <el-table-column prop="value" label="值">
+                    <template slot-scope="scope">
+                      <el-input
+                        type="textarea"
+                        v-if="!scope.row.baseType"
+                        :autosize="{ minRows: 6}"
+                        placeholder="请输入内容"
+                        v-model="scope.row.value"
+                        clearable
+                      ></el-input>
+                      <el-input
+                        v-if="scope.row.baseType"
+                        placeholder="请输入内容"
+                        v-model="scope.row.value"
+                        clearable
+                      >
+                      </el-input>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-tab-pane>
+              <el-tab-pane label="参数" name="second">
+                <el-collapse>
+                  <el-collapse-item title="1.请求参数">
+                    <el-table
+                      :data="curMethod.paramDocInfos"
+                      style="width: 100%"
+                    >
+                      <el-table-column type="index"> </el-table-column>
+                      <el-table-column
+                        prop="fieldName"
+                        label="参数"
+                        width="180"
+                      >
+                      </el-table-column>
+                      <el-table-column
+                        prop="simpleTypeName"
+                        label="类型"
+                        width="280"
+                      >
+                        <template slot-scope="scope">
+                          {{scope.row.simpleTypeName}}<span
+                            v-if="scope.row.arrayType"
+                            >[]数组</span
+                          >
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="comment" label="注释">
+                      </el-table-column>
+                    </el-table>
+                  </el-collapse-item>
+                  <el-collapse-item
+                    v-for="(param,pindex) in curMethod.relateJavaClassDocsList"
+                    :key="pindex"
+                    :title="(pindex+2) + '.'+param.fieldName + ' '+ param.comment"
+                  >
+                    <el-table :data="param.javaClassDocs" style="width: 100%">
+                      <el-table-column type="index"> </el-table-column>
+                      <el-table-column
+                        prop="fieldName"
+                        label="参数"
+                        width="180"
+                      >
+                      </el-table-column>
+                      <el-table-column
+                        prop="simpleTypeName"
+                        label="类型"
+                        width="180"
+                      >
+                        <template slot-scope="scope">
+                          {{scope.row.simpleTypeName}}<span
+                            v-if="scope.row.arrayType"
+                            >[]数组</span
+                          >
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="comment" label="注释">
+                      </el-table-column>
+                    </el-table>
+                  </el-collapse-item>
+                </el-collapse>
+              </el-tab-pane>
+              <el-tab-pane label="代码" name="third">
+                <h2>js请求代码</h2>
+                <el-input
+                  type="textarea"
+                  :autosize="{ minRows: 6}"
+                  placeholder="请输入内容"
+                  v-model="requestJsCode"
+                  clearable
+                >
+                </el-input>
+                <h2>同步请求js请求代码</h2>
+                <el-input
+                  type="textarea"
+                  :autosize="{ minRows: 6}"
+                  placeholder="请输入内容"
+                  v-model="requestJsCode1"
+                  clearable
+                >
+                </el-input>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var SERVER_URL = "http://localhost:8001";
+      var app = new Vue({
+        el: "#app",
+        data: {
+          server_url: SERVER_URL,
+          actionSearchKey: "",
+          methodSearchKey: "",
+          actions: [],
+          curMethod: null,
+          curAction: {},
+          retVal: "",
+          requestJsCode: "",
+          requestJsCode1: "",
+          platformType:0,
+          headers:"adminToken=xxx;token=xxx;x-greecloud-syscode=mc;x-greecloud-token=xxx;x-greecloud-userid=xxx",
+        },
+        created: function () {
+          var that = this ;
+          console.log("----------created-----------");
+          //axios拦截器,默认添加header
+          axios.interceptors.request.use(
+            (config) => {
+              let spstr = that.headers.split(";")
+              for(let info of spstr){
+                let kv = info.split("=")
+                if(kv.length == 2){
+                  config.headers[kv[0]] = kv[1]
+                }
+              }
+              return config;
+            },
+            (err) => {
+              return Promise.reject(err);
+            }
+          );
+          this.loadData();
+        },
+        methods: {
+          loadData() {
+            var that = this;
+            axios({
+              method: "post",
+              url: SERVER_URL + `/doc/doc?platformType=${this.platformType}`,
+              data: {},
+            }).then(function (response) {
+              that.actions = response.data.data;
+            });
+          },
+          doRequest() {
+            var that = this;
+            var baseTypeParam = {};
+            var jsonTypeParam = {};
+            var urlParam = "?";
+            this.curMethod.requestMapperUrl = this.curMethod.meothdMapperUrl;
+            let methodsType =
+              this.curMethod.methodType == "ALL"
+                ? "get"
+                : this.curMethod.methodType.toLowerCase();
+            for (let param of this.curMethod.paramDocInfos) {
+              if (param.baseType) {
+                if (param.arrayType) {
+                  baseTypeParam[param.fieldName] = JSON.parse(param.value);
+                  for (let v of baseTypeParam[param.fieldName]) {
+                    urlParam += param.fieldName + "=" + v + "&";
+                  }
+                } else {
+                  baseTypeParam[param.fieldName] = param.value;
+                  urlParam += param.fieldName + "=" + param.value + "&";
+                }
+              } else {
+                jsonTypeParam = JSON.parse(param.value);
+              }
+              if (param.pathType) {
+                let pathName =
+                  param.pathTypeName == null || param.pathTypeName.length == 0
+                    ? param.fieldName
+                    : param.pathTypeName;
+                this.curMethod.requestMapperUrl =
+                  this.curMethod.requestMapperUrl.replace(
+                    `{${pathName}}`,
+                    baseTypeParam[param.fieldName]
+                  );
+              }
+            }
+
+            let actionUrl = this.curMethod.actionMapperUrl.length == 0 ? "" : "/" +this.curMethod.actionMapperUrl
+            let reqUrl = actionUrl +"/" +this.curMethod.requestMapperUrl;
+            axios({
+              method: `${methodsType}`,
+              url:
+                this.server_url +
+                reqUrl +
+                urlParam,
+              data: jsonTypeParam,
+            }).then(function (response) {
+              if (response.status == 200) {
+                that.retVal = JSON.stringify(response.data);
+                if(that.curMethod.requestMapperUrl.toLowerCase().indexOf("login") != -1){
+                  //处理登录的token
+                  if(that.platformType == 0){
+                    //我们的项目
+                    that.headers = `adminToken=${response.data.admin != undefined ? response.data.admin.token : ""};token=${response.data.user != undefined ? response.data.user.token :"" };`;
+                  }else if(that.platformType == 1){
+                    //格力的项目
+                    that.headers = `x-greecloud-syscode=mc;x-greecloud-token=${response.data.data.token.key};x-greecloud-userid=${response.data.data.user.id}`;
+                  }
+                }
+              } else {
+                that.retVal = JSON.stringify(response);
+              }
+            });
+          },
+          selectAction(action) {
+            this.curAction = action;
+          },
+          selectMethod(method) {
+            this.curMethod = method;
+
+            var baseTypeParam = {};
+            var jsonTypeParam = {};
+            var urlParam = "?";
+            var dataName = "reqData";
+            var paramName = "reqParam";
+            this.curMethod.trueMapperUrl = this.curMethod.meothdMapperUrl;
+            let actionUrl = this.curMethod.actionMapperUrl.length == 0 ? "" : "/" +this.curMethod.actionMapperUrl
+            let methodsType =
+              this.curMethod.methodType == "ALL"
+                ? "get"
+                : this.curMethod.methodType.toLowerCase();
+
+            for (let param of this.curMethod.paramDocInfos) {
+              if (param.baseType) {
+                if (param.arrayType) {
+                  baseTypeParam[param.fieldName] = JSON.parse(param.value);
+                  if (!param.pathType) {
+                    for (let v of baseTypeParam[param.fieldName]) {
+                      urlParam += param.fieldName + "=" + v + "&";
+                    }
+                  }
+                } else {
+                  baseTypeParam[param.fieldName] = param.value;
+                  if (!param.pathType) {
+                    urlParam +=
+                      param.fieldName +
+                      "=${" +
+                      paramName +
+                      "." +
+                      param.fieldName +
+                      "}&";
+                  }
+                }
+              } else {
+                try{
+                  if(param.value == null || param.value == ""){
+                    param.value="{}";
+                    if(method.greeJsonVal != undefined && method.greeJsonVal != null){
+                      param.value=method.greeJsonVal;
+                    }
+                  }
+                  console.log(param.value)
+                  jsonTypeParam = JSON.parse(param.value);
+                }catch(e){
+                  console.error(e)
+                }
+
+              }
+              if (param.pathType) {
+                let pathName =
+                  param.pathTypeName == null || param.pathTypeName.length == 0
+                    ? param.fieldName
+                    : param.pathTypeName;
+                this.curMethod.trueMapperUrl =this.curMethod.trueMapperUrl.replace(`{${pathName}}`,"${" + paramName + "." + param.fieldName + "}"
+                  );
+              }
+            }
+            var reqParamLength = Object.keys(baseTypeParam).length
+            let urlParamStr = urlParam.length > 1?`
+let urlParam = \`${urlParam}\`;`:"";
+            let reqParamStr = reqParamLength > 0 ? `
+let ${paramName} = ${JSON.stringify(baseTypeParam)};` : "";
+            this.requestJsCode = `
+let ${dataName} =  ${JSON.stringify(jsonTypeParam)};${reqParamStr}${urlParamStr}
+let ${this.curMethod.methodName}Url = \`${actionUrl}/${this.curMethod.trueMapperUrl}${urlParam.length > 1? "${urlParam}" : ""}\`;
+this.axios({
+  method: '${methodsType}',
+  url: ${this.curMethod.methodName}Url,
+  data: ${dataName}
+}).then(function (response) {
+    // handle success
+    console.log(response);
+  })
+
+          `;
+            this.requestJsCode = this.requestJsCode.trim();
+            this.requestJsCode1 = `
+let ${dataName} =  ${JSON.stringify(jsonTypeParam)};${reqParamStr}${urlParamStr}
+let ${this.curMethod.methodName}Url = \`${actionUrl}/${this.curMethod.trueMapperUrl}${urlParam.length > 1 ? "${urlParam}" : ""}\`;
+let result = await this.axios.${methodsType}(${this.curMethod.methodName}Url,${dataName});
+console.log(result);
+          `.trim();
+          },
+        },
+      });
+    </script>
+  </body>
+
+  <style>
+    .main {
+      display: flex;
+    }
+
+    .left {
+      width: 270px;
+      box-sizing: border-box;
+    }
+
+    .right {
+      width: calc(100vw - 270px);
+      padding: 20px;
+      box-sizing: border-box;
+    }
+  </style>
+</html>
