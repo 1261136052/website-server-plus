@@ -18,3 +18,5 @@
 # 忽略其他临时文件
 *.tmp
 *.swp
+
+/html/work
