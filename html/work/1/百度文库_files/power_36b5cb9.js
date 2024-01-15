@@ -1,2 +1,0 @@
-define("wkapi:widget/js/power/power.js",function(e,o,r){var t=e("wkapi:widget/js/dep/jquery/jquery.js"),a=function(e){var o=new t.Deferred;if(!e||!e.token||!e.host)return o.reject();var r="//wenku.baidu.com/api/interface/getpower";return t.ajax({url:r,data:{host:e.host,token:e.token},dataType:"jsonp"}).done(function(r){var a=t.extend({download:"1",fav:"1",full:"1",logo:"1",page:"1",pagenum:"1",share:"1",zoom:"1"},r.power);o.resolve({host:e.host,token:e.token,power:r.data.power}),+a.share&&t(window).trigger("share.show")
-}),o.promise()};r.exports=a});

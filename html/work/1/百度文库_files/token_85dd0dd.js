@@ -1,2 +1,0 @@
-define("wkapi:widget/js/token/token.js",function(e,t,a){var o=e("wkapi:widget/js/dep/tangram/base.js"),n=e("wkapi:widget/js/dep/jquery/jquery.js"),r="wenku.baidu.com",s=function(){var e=new n.Deferred,t=location.search,a=o.url.getQueryValue(t,"token"),s=o.url.getQueryValue(t,"host");return a&&s?e.resolve({token:a,host:s}):n.ajax({url:"//wenku.baidu.com/api/interface/gettoken",data:{host:r,secretKey:"6f614cb00c6b6821e3cdc85ab1f8f907"},dataType:"jsonp"}).done(function(t){e.resolve({token:t.data.token,host:r})
-}),e.promise()};a.exports=s});

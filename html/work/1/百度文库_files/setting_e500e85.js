@@ -1,1 +1,0 @@
-define("wkapi:widget/tpl/api_share/js/setting.js",function(e,t,i){var s=(e("wkcommon:widget/lib/tangram/base/base.js"),e("wkcommon:widget/ui/js_core/util/util.js"),{currentZoomLevel:1,currentPage:1,zoomLevel:1,isFullScreen:!1});i.exports.setting=s});
