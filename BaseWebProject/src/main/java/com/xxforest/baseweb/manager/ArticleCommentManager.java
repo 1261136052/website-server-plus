@@ -41,4 +41,8 @@ public class ArticleCommentManager {
         return new QueryResult(list, pager);
 
     }
+
+    public Object delete(long id) {
+        return dao.delete(ArticleComment.class, id);
+    }
 }

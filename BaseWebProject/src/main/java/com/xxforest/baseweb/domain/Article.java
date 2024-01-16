@@ -82,4 +82,8 @@ public class Article  {
     @Default("0")
     @Column("like_count")
     private Integer likeCount ;
+
+    @Default("0")
+    @Column("comment_count")
+    private Integer commentCount ;
 }

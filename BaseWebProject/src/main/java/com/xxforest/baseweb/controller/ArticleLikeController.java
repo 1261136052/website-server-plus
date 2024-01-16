@@ -13,6 +13,7 @@ import com.xxforest.baseweb.domain.User;
 import com.xxforest.baseweb.manager.ArticleLikeManager;
 import com.xxforest.baseweb.manager.ArticleManager;
 import org.nutz.dao.Cnd;
+import org.nutz.dao.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import redis.clients.jedis.Jedis;
@@ -40,7 +41,6 @@ public class ArticleLikeController {
         }else {
             return ResponseMessage.success("data",true);
         }
-
     }
 
 
@@ -65,6 +65,21 @@ public class ArticleLikeController {
             return ResponseMessage.success("data",isAdd);
         }
 
+    }
+
+    @Auth(AuthType.ADMIN)
+    @GetMapping("/query/{articleId}/{page}/{pageSize}")
+    public ResponseMessage query(@PathVariable long articleId,
+                                 @PathVariable("page") int page , @PathVariable int pageSize){
+        QueryResult queryResult = articleLikeManager.selectPage(page,pageSize,articleId);
+        return ResponseMessage.success("data",queryResult);
+    }
+
+    @Auth(AuthType.ADMIN)
+    @GetMapping("/delete/{articleId}/{userId}")
+    public ResponseMessage delete(@PathVariable long articleId,
+                                 @PathVariable("userId") long userId ){
+        return ResponseMessage.success("data",articleLikeManager.delete(articleId,userId));
     }
 
 }

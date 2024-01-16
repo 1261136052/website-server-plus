@@ -52,7 +52,8 @@ public class ArticleManager {
 
         Pager pager = dao.createPager(pageNum, pageSize);
 
-        List<Article> list = dao.query(Article.class, cri, pager,"^title|id|cover|author|publishDate|articleCategoryId$");
+        List<Article> list = dao.query(Article.class, cri, pager,"^title|id|cover|author|publishDate" +
+                "|articleCategoryId|likeCount|commentCount$");
         pager.setRecordCount(dao.count(Article.class,cri));
         return new QueryResult(list, pager);
 
@@ -92,5 +93,16 @@ public class ArticleManager {
         List<Article> list = dao.query(Article.class, cri, pager,"^title|id|cover|author|publishDate|articleCategoryId");
         pager.setRecordCount(dao.count(Article.class,cri));
         return new QueryResult(list, pager);
+    }
+
+    public Article queryById(long articleId) {
+        return dao .fetch(Article.class, articleId);
+    }
+
+    public void addCommentCount(long articleId,int count) {
+         Article article = dao.fetch(Article.class, articleId);
+         if (article==null) return;
+         article.setCommentCount(article.getCommentCount() + count);
+         dao.update(article);
     }
 }

@@ -9,10 +9,12 @@ import com.xxforest.baseweb.core.ResponseMessage;
 import com.xxforest.baseweb.core.ServerDao;
 import com.xxforest.baseweb.core.anno.Auth;
 import com.xxforest.baseweb.core.anno.AuthType;
+import com.xxforest.baseweb.domain.Article;
 import com.xxforest.baseweb.domain.ArticleComment;
 import com.xxforest.baseweb.domain.GoodsChat;
 import com.xxforest.baseweb.domain.User;
 import com.xxforest.baseweb.manager.ArticleCommentManager;
+import com.xxforest.baseweb.manager.ArticleManager;
 import com.xxforest.baseweb.vo.ChatVo;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.QueryResult;
@@ -35,6 +37,9 @@ public class ArticleCommentController {
     @Autowired
     private ArticleCommentManager articleCommentManager ;
 
+    @Autowired
+    private ArticleManager articleManager ;
+
     @Auth(AuthType.USER)
     @GetMapping("/comment/{articleId}")
     public ResponseMessage test(@RequestHeader(value = "token",required = false) String token,
@@ -51,6 +56,7 @@ public class ArticleCommentController {
         comment.setUserId(user.getId());
         comment.setUserName(user.getUserName());
         articleCommentManager.addComment(comment);
+        articleManager.addCommentCount(articleId,1);
         return ResponseMessage.success("data","success");
     }
 
@@ -64,8 +70,10 @@ public class ArticleCommentController {
 
 
 
-
-
-
-
+    @Auth(AuthType.ADMIN)
+    @GetMapping("/delete/{id}")
+    public ResponseMessage deleteAttention(@PathVariable long id) {
+        articleManager.addCommentCount(id,-1);
+        return ResponseMessage.success("data",articleCommentManager.delete(id));
+    }
 }

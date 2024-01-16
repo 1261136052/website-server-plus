@@ -77,8 +77,6 @@ public class ArticleController {
     }
 
 
-
-
     /**
      * 根据id获取文章
      * @param id 文章编号
@@ -131,7 +129,7 @@ public class ArticleController {
      * @return
      */
     @Auth(AuthType.ADMIN)
-    @DeleteMapping("/del/{id}")
+    @GetMapping("/del/{id}")
     public ResponseMessage delArticle(@PathVariable long id){
         serverDao.delete(Article.class,id);
         return ResponseMessage.success("data","删除成功");
