@@ -1,12 +1,15 @@
 package com.xxforest.baseweb.manager;
 
 import com.xxforest.baseweb.core.ServerDao;
-import com.xxforest.baseweb.domain.Admin;
+import com.xxforest.baseweb.domain.*;
+import com.xxforest.baseweb.dto.StatisticsDto;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Condition;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import javax.xml.stream.events.Comment;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -54,4 +57,15 @@ public class AdminManager {
         dao.update(admin);
     }
 
+    public StatisticsDto selectStatistics() {
+        StatisticsDto statistic = new StatisticsDto();
+        statistic.setArticleCount(dao.count(Article.class));
+        statistic.setCommentCount(dao.count(ArticleComment.class));
+        statistic.setLikeCount(dao.count(ArticleLike.class));
+        statistic.setUserCount(dao.count(User.class));
+        statistic.setGoodsCount(dao.count(Goods.class));
+        statistic.setOrderCount(dao.count(GoodsOrder.class));
+        statistic.setChatCount(dao.count(GoodsChat.class));
+        return statistic;
+    }
 }

@@ -3,7 +3,8 @@ package com.xxforest.baseweb.core.enums;
 public enum GoodsStatus {
     LAUNCH("上架"),
     DOWN("下架"),
-    SELL("售卖");
+    SELL("售卖"),
+    WAIT("待确认");
 
     private String value;
 

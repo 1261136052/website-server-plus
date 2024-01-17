@@ -35,6 +35,13 @@ public class OrderManager {
         return dao.fetchLinks(query,"goods");
     }
 
+    public List<GoodsOrder> listWaitGoods(long id) {
+        List<Goods> query = dao.query(Goods.class, Cnd.where("userId", "=", id).and("status","=",GoodsStatus.WAIT.name()));
+        List<Long> ids =  query.stream().collect(ArrayList::new, (list, item) -> list.add(item.getId()), ArrayList::addAll);
+        List<GoodsOrder> query2 = dao.query(GoodsOrder.class, Cnd.where("goodsId", "in", ids).desc("buyDate"));
+        return dao.fetchLinks(query2,"goods");
+    }
+
     public List<GoodsOrder> listSellGoods(long id) {
         List<Long> ids = dao.query(Goods.class, Cnd.where("userId", "=", id).
                 and("status","=", GoodsStatus.SELL)).stream().collect(ArrayList::new
@@ -86,5 +93,19 @@ public class OrderManager {
 
     public Object deleteOrder(long id) {
         return dao.delete(GoodsOrder.class,id);
+    }
+
+    public Object confirm(int isConfirm, Long orderId, long id) {
+        GoodsOrder order = dao.fetch(GoodsOrder.class,orderId);
+        Goods goods = dao.fetch(Goods.class, order.getGoodsId());
+        if (isConfirm==0&& goods.getStatus().equals(GoodsStatus.WAIT.name()) &&goods.getUserId() == id){
+            goods.setStatus(GoodsStatus.SELL.name());
+            return dao.update(goods);
+        }else if (isConfirm==1&& goods.getStatus().equals(GoodsStatus.WAIT.name()) &&goods.getUserId() == id){
+            goods.setStatus(GoodsStatus.LAUNCH.name());
+            dao.delete(order);
+            return dao.update(goods);
+        }
+        return  -1;
     }
 }

@@ -74,6 +74,12 @@ public class AdminController {
         return ResponseMessage.success("admin",admin);
     }
 
+
+    @GetMapping("/statistics")
+    public ResponseMessage statistics(){
+        return ResponseMessage.success("data",adminManager.selectStatistics());
+    }
+
 }
 
 //class SmallestInfiniteSet {

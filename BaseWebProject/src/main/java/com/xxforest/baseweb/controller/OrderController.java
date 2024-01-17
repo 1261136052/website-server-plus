@@ -45,7 +45,7 @@ public class OrderController {
         if (!goods.getStatus().equals(GoodsStatus.LAUNCH.name())) return ResponseMessage.error("商品不存在");
 
         if (goods.getUserId() == buyerVo.getBuyerId()) return ResponseMessage.error("不可以购买自己的商品");
-        goods.setStatus(GoodsStatus.SELL.name());
+        goods.setStatus(GoodsStatus.WAIT.name());
         goodsManager.update(goods);
         GoodsOrder goodsOrder = new GoodsOrder();
         BeanUtils.copyProperties(buyerVo,goodsOrder);
@@ -54,6 +54,8 @@ public class OrderController {
         orderManager.add(goodsOrder);
         return ResponseMessage.success("data","goodsChat");
     }
+
+
 
     @Auth(AuthType.USER)
     @GetMapping("/listBuyGoods")
@@ -66,14 +68,32 @@ public class OrderController {
     }
 
     @Auth(AuthType.USER)
+    @GetMapping("/listWaitGoods")
+    public ResponseMessage listWaitGoods(
+            @RequestHeader(value = "token",required = false) String token){
+        String str = RedisUtil.getUserValue(token);
+        User user = JSONUtil.toBean(str, User.class);
+        return ResponseMessage.success("data",orderManager.listWaitGoods(user.getId()));
+    }
+
+    @Auth(AuthType.USER)
+    @GetMapping("/confirm/{orderId}/{isConfirm}")
+    public ResponseMessage confirm(@PathVariable long orderId,@PathVariable int isConfirm,
+                                   @RequestHeader(value = "token",required = false) String token){
+        String str = RedisUtil.getUserValue(token);
+        User user = JSONUtil.toBean(str, User.class);
+        return ResponseMessage.success("data",orderManager.confirm(isConfirm,orderId,user.getId()));
+    }
+
+
+
+    @Auth(AuthType.USER)
     @GetMapping("/listSellGoods")
     public ResponseMessage listSellGoods(@RequestHeader(value = "token",required = false) String token){
         String str = RedisUtil.getUserValue(token);
         User user = JSONUtil.toBean(str, User.class);
         return ResponseMessage.success("data",orderManager.listSellGoods(user.getId()));
     }
-
-
 
 
     @Auth(AuthType.ADMIN)

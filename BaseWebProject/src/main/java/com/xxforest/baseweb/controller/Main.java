@@ -1758,6 +1758,34 @@ class InsertionSortInLinkedList {
         }
         return  ans;
     }
+
+    public int maximumNumberOfStringPairs(String[] words) {
+        int ans = 0;
+        int length = words.length;
+        if (length==0) return ans;
+        Map<String,Integer> map = new HashMap<>();
+
+        for (int i = 0; i < length; i++) {
+           String word = words[i];
+            Integer data = map.getOrDefault(word,0);
+            if (data==0) {
+                map.put(flip(word),1);
+            }else{
+                map.remove(word);
+                ans++;
+            }
+        }
+        return ans;
+    }
+
+    private String flip(String word) {
+        StringBuilder ans = new StringBuilder();
+        for (int length = word.length()-1; length >= 0; length--) {
+            ans.append(word.charAt(length));
+        }
+        return ans.toString();
+    }
+
     public static void main(String[] args) {
         countWords(new String[]{"leetcode","is","amazing","as","is"},new String[]{"amazing","leetcode","is"});
     }
