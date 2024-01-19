@@ -28,6 +28,15 @@ public class RedisUtil {
         jedis.close();
     }
 
+    public static void setToken(String token,Long ex,String value){
+        if (redisDS == null) RedisUtil.getInstance();
+        Jedis jedis = redisDS.getJedis();
+        SetParams params = new  SetParams();
+        params.ex(36000L);//设置token过期时间
+        jedis.set(token,value,params);
+        jedis.close();
+    }
+
     public static String getUserValue(String token){
         if (redisDS == null) RedisUtil.getInstance();
         return redisDS.getStr(token);

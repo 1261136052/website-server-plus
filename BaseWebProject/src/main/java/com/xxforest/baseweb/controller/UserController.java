@@ -5,18 +5,17 @@ import cn.hutool.json.JSONUtil;
 import com.xxforest.baseweb.core.IdTool;
 import com.xxforest.baseweb.core.RedisUtil;
 import com.xxforest.baseweb.core.ResponseMessage;
+import com.xxforest.baseweb.core.VerificationImageCodeServiceImp;
 import com.xxforest.baseweb.core.anno.Auth;
 import com.xxforest.baseweb.core.anno.AuthType;
-import com.xxforest.baseweb.domain.Admin;
 import com.xxforest.baseweb.domain.User;
-import com.xxforest.baseweb.manager.AdminManager;
 import com.xxforest.baseweb.manager.UserManager;
+import com.xxforest.baseweb.vo.LoginVo;
 import org.nutz.dao.Dao;
 import org.nutz.dao.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -37,9 +36,17 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public ResponseMessage login(@RequestBody User loginVo){
+    public ResponseMessage login(@RequestBody LoginVo loginVo){
         String account = loginVo.getAccount();
         String pwd = loginVo.getPwd();
+        String verifyCode = loginVo.getVerifyCode();
+        if (!StrUtil.isNotBlank(verifyCode)) return ResponseMessage.error("验证码为空");
+        VerificationImageCodeServiceImp verification =  new VerificationImageCodeServiceImp();
+
+        int i = verification.checkImageCode(account, verifyCode);
+        if (i==-1) return ResponseMessage.error("验证码过期");
+        if (i==1) return ResponseMessage.error("验证码错误");
+
         User admin = userManager.selectByAccountAndPwd(account, pwd);
         if(admin != null){
             String s = UUID.randomUUID().toString();
@@ -54,6 +61,12 @@ public class UserController {
             return ResponseMessage.error("不存在用户");
         }
 
+    }
+
+    @GetMapping("/verification/{uuid}")
+    public ResponseMessage verification(@PathVariable String uuid){
+       VerificationImageCodeServiceImp verification =  new VerificationImageCodeServiceImp();
+        return ResponseMessage.success("data", verification.generateImageCode(uuid));
     }
 
     /**

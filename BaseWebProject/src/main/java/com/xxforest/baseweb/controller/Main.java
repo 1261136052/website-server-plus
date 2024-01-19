@@ -1785,7 +1785,37 @@ class InsertionSortInLinkedList {
         }
         return ans.toString();
     }
+    public long minimumRemoval(int[] beans) {
+        int n = beans.length;
+        Arrays.sort(beans);
+        long sum =0,rem = 0;
+        for(int i = 0;i<n;i++){
+            sum += beans[i];
+            rem = Math.max(rem,(long)beans[i]*(n-i));
+        }
+        return sum -rem;
+    }
 
+    public long minimumRemoval2(int[] beans) {
+        int n = beans.length;
+        Arrays.sort(beans);
+        long sum =0;
+        long[] sufSum = new long[n+1];
+
+        for (int i = n-1; i > 0; i--) {
+            sum += beans[i];
+            sufSum[i] = sum;
+        }
+
+        long preSum = 0;
+        long ans = sufSum[0];
+        for (int i = 0; i < n; i++) {
+            preSum += beans[i];
+            ans = Math.max(ans,preSum+sufSum[i+1] -(long) beans[n-i-1]);
+
+        }
+        return ans;
+    }
     public static void main(String[] args) {
         countWords(new String[]{"leetcode","is","amazing","as","is"},new String[]{"amazing","leetcode","is"});
     }
