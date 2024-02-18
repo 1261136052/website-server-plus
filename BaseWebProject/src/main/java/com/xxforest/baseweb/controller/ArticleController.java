@@ -89,7 +89,7 @@ public class ArticleController {
     }
 
     /**
-     * 添加文章
+     * 发布文章
      * @param article 文章数据
      * @return
      */

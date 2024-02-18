@@ -38,13 +38,13 @@ public class TestController {
     @Autowired
     private ServerDao dao;
 
-    @GetMapping("/test")
-    public ResponseMessage test(Map<String, Object> args) {
-        String result1 = HttpUtil.get("http://weather.uwyo.edu/cgi-bin/bufrraob_json.py");
-        result1 = result1.replace("=", ":");
-        InsertionSortInLinkedList.MetaData metaData = JSONUtil.toBean(result1, InsertionSortInLinkedList.MetaData.class);
-        return ResponseMessage.success("a", metaData);
-    }
+//    @GetMapping("/test")
+//    public ResponseMessage test(Map<String, Object> args) {
+//        String result1 = HttpUtil.get("http://weather.uwyo.edu/cgi-bin/bufrraob_json.py");
+//        result1 = result1.replace("=", ":");
+//        InsertionSortInLinkedList.MetaData metaData = JSONUtil.toBean(result1, InsertionSortInLinkedList.MetaData.class);
+//        return ResponseMessage.success("a", metaData);
+//    }
 
     @Auth(AuthType.ADMIN)
     @GetMapping("/test2")
