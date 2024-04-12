@@ -1885,7 +1885,7 @@ class InsertionSortInLinkedList {
     }
 
     public static void main(String[] args) {
-        System.out.println(stoneGameVI(new int[]{2,4,3},new int[]{1,6,7}));
+        maximumCount(new int[]{-3,-2,-1,0,0,1,2});
     }
 
 
@@ -1917,6 +1917,26 @@ class InsertionSortInLinkedList {
         }
         return dp[length];
     }
+
+    public static int maximumCount(int[] nums) {
+        Arrays.sort(nums);
+
+
+        int index = 0;
+        int len = nums.length;
+
+
+        for(int num : nums){
+            if(num>=0){
+                break;
+            }
+            index++;
+        }
+
+        return Math.max(index, len - index);
+    }
+
+
     @Data
     static class MetaData{
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

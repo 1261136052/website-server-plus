@@ -77,22 +77,21 @@ public class OrderController {
     }
 
     @Auth(AuthType.USER)
+    @GetMapping("/listSellGoods")
+    public ResponseMessage listSellGoods(@RequestHeader(value = "token",required = false) String token){
+        String str = RedisUtil.getUserValue(token);
+        User user = JSONUtil.toBean(str, User.class);
+        return ResponseMessage.success("data",orderManager.listSellGoods(user.getId()));
+    }
+
+
+    @Auth(AuthType.USER)
     @GetMapping("/confirm/{orderId}/{isConfirm}")
     public ResponseMessage confirm(@PathVariable long orderId,@PathVariable int isConfirm,
                                    @RequestHeader(value = "token",required = false) String token){
         String str = RedisUtil.getUserValue(token);
         User user = JSONUtil.toBean(str, User.class);
         return ResponseMessage.success("data",orderManager.confirm(isConfirm,orderId,user.getId()));
-    }
-
-
-
-    @Auth(AuthType.USER)
-    @GetMapping("/listSellGoods")
-    public ResponseMessage listSellGoods(@RequestHeader(value = "token",required = false) String token){
-        String str = RedisUtil.getUserValue(token);
-        User user = JSONUtil.toBean(str, User.class);
-        return ResponseMessage.success("data",orderManager.listSellGoods(user.getId()));
     }
 
 

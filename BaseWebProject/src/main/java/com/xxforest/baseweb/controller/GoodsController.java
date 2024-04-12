@@ -27,10 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 闲置商品接口
@@ -211,7 +208,8 @@ public class GoodsController {
     @Auth(AuthType.USER)
     @GetMapping("/listGoodsStatus")
     public ResponseMessage listGoodsStatus(){
-        return ResponseMessage.success("data",GoodsStatus.values());
+        return ResponseMessage.success("data", Arrays.stream(GoodsStatus.values()).filter(item->item.getValue()!="待确认"
+                &&item.getValue()!="售卖").toArray());
     }
 
     @Auth(AuthType.ADMIN)

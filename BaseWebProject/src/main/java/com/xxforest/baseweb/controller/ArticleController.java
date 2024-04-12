@@ -11,6 +11,7 @@ import com.xxforest.baseweb.domain.User;
 import com.xxforest.baseweb.manager.ArticleCategoryManager;
 import com.xxforest.baseweb.manager.ArticleManager;
 import com.xxforest.baseweb.manager.UploadFileManager;
+import org.nutz.dao.Cnd;
 import org.nutz.dao.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -69,9 +70,28 @@ public class ArticleController {
     }
 
 
+    /**
+     * 根据编号删除文章
+     * @param id 文章编号
+     * @return
+     */
+    @Auth(AuthType.USER)
+    @GetMapping("/delUserArticle/{id}")
+    public ResponseMessage delUserArticle(@PathVariable long id,@RequestHeader(value = "token",required = false) String token){
+        String str = RedisUtil.getUserValue(token);
+        User user = JSONUtil.toBean(str, User.class);
+        if (user==null)return ResponseMessage.error("请登录");
+        Article article = serverDao.fetch(Article.class, Cnd.where("id", "=", id).and("author_id", "=", user.getId()));
+        if (article==null){
+            return ResponseMessage.error("删除失败");
+        }
+        serverDao.delete(article);
+        return ResponseMessage.success("data","删除成功");
+    }
+
+
     @GetMapping("/hot")
     public ResponseMessage loadArticleList() {
-
         QueryResult queryResult = articleManager.selectHot();
         return ResponseMessage.success("data",queryResult);
     }
