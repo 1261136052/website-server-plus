@@ -1884,11 +1884,43 @@ class InsertionSortInLinkedList {
         return j;
     }
 
-    public static void main(String[] args) {
-        maximumCount(new int[]{-3,-2,-1,0,0,1,2});
+    public int minimumRounds(int[] tasks) {
+        Map<Integer, Integer> map = new HashMap<>();
+
+        for(int i : tasks){
+            map.merge(i, 1, Integer::sum);
+        }
+
+        int ans = 0;
+
+        for (Integer value : map.values()) {
+            if(value == 1) return -1;
+            ans += (value+2) / 3;
+        }
+        return ans;
     }
 
 
+
+
+    public static void main(String[] args) {
+        findOriginalArray(new int[]{1,3,4,2,6,8});
+    }
+
+    public static int[] findOriginalArray(int[] changed) {
+        Arrays.sort(changed);
+        int len =  changed.length;
+        if(len % 2 != 0) return new int[1];
+        int[] ans =  new int[len/2];
+        for(int i = 0 ; i<len/2;i++){
+            if(changed[i]*2 == changed[i+(len/2)]){
+                ans[i] = changed[i];
+            }else{
+                return new int[0];
+            }
+        }
+        return  ans;
+    }
     public List<Integer> preorder(Node root) {
         List<Integer> ans = new ArrayList<>();
         helper(root,ans);
@@ -1937,6 +1969,31 @@ class InsertionSortInLinkedList {
     }
 
 
+    public long findMaximumElegance(int[][] items, int k) {
+        Arrays.sort(items, (o1, o2) -> o2[0] - o1[0]);
+        long ans = 0L;
+        long total = 0L;
+        Set<Integer> category = new HashSet<>();
+        Deque<Integer> stack = new ArrayDeque<>();
+
+
+        for (int i = 0; i < items.length; i++) {
+            int price = items[i][0];
+            int categoryId = items[i][1];
+            if(i<k){
+                total += price;
+                if(!category.add(categoryId)){
+                    stack.push(price);
+                }
+            }else if(!stack.isEmpty()&&category.add(categoryId)){
+                total += price - stack.pop();
+            }
+            ans = Math.max(ans, total + (long) category.size() *  category.size());
+        }
+        return ans;
+    }
+
+
     @Data
     static class MetaData{
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -1953,4 +2010,3 @@ class InsertionSortInLinkedList {
         private String name;
     }
 }
-
