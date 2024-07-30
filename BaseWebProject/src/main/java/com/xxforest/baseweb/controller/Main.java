@@ -28,6 +28,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.nutz.lang.Nums.gcd;
+
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -1843,16 +1845,16 @@ class InsertionSortInLinkedList {
         Arrays.sort(numss, (o1, o2) -> o2[0] - o1[0]);
         int aliceCount = 0, bobCount = 0;
         for (int i = 0; i < n; i++) {
-            if (i%2==0){
+            if (i % 2 == 0) {
                 aliceCount += aliceValues[numss[i][1]];
-            }else {
+            } else {
                 bobCount += bobValues[numss[i][1]];
             }
         }
 
-        if (bobCount==aliceCount) return 0;
+        if (bobCount == aliceCount) return 0;
 
-        return bobCount < aliceCount?1:0;
+        return bobCount < aliceCount ? 1 : 0;
 
     }
 
@@ -1876,6 +1878,7 @@ class InsertionSortInLinkedList {
         }
         return ans;
     }
+
     public int sumIndicesWithKSetBits(List<Integer> nums, int k) {
         int j = 0;
         for (int i = 0; i < nums.size(); i++) {
@@ -1887,43 +1890,42 @@ class InsertionSortInLinkedList {
     public int minimumRounds(int[] tasks) {
         Map<Integer, Integer> map = new HashMap<>();
 
-        for(int i : tasks){
+        for (int i : tasks) {
             map.merge(i, 1, Integer::sum);
         }
 
         int ans = 0;
 
         for (Integer value : map.values()) {
-            if(value == 1) return -1;
-            ans += (value+2) / 3;
+            if (value == 1) return -1;
+            ans += (value + 2) / 3;
         }
         return ans;
     }
 
 
-
-
     public static void main(String[] args) {
-        findOriginalArray(new int[]{1,3,4,2,6,8});
+        sumOfTheDigitsOfHarshadNumber(23);
     }
 
     public static int[] findOriginalArray(int[] changed) {
         Arrays.sort(changed);
-        int len =  changed.length;
-        if(len % 2 != 0) return new int[1];
-        int[] ans =  new int[len/2];
-        for(int i = 0 ; i<len/2;i++){
-            if(changed[i]*2 == changed[i+(len/2)]){
+        int len = changed.length;
+        if (len % 2 != 0) return new int[1];
+        int[] ans = new int[len / 2];
+        for (int i = 0; i < len / 2; i++) {
+            if (changed[i] * 2 == changed[i + (len / 2)]) {
                 ans[i] = changed[i];
-            }else{
+            } else {
                 return new int[0];
             }
         }
-        return  ans;
+        return ans;
     }
+
     public List<Integer> preorder(Node root) {
         List<Integer> ans = new ArrayList<>();
-        helper(root,ans);
+        helper(root, ans);
         return ans;
     }
 
@@ -1958,8 +1960,8 @@ class InsertionSortInLinkedList {
         int len = nums.length;
 
 
-        for(int num : nums){
-            if(num>=0){
+        for (int num : nums) {
+            if (num >= 0) {
                 break;
             }
             index++;
@@ -1980,33 +1982,281 @@ class InsertionSortInLinkedList {
         for (int i = 0; i < items.length; i++) {
             int price = items[i][0];
             int categoryId = items[i][1];
-            if(i<k){
+            if (i < k) {
                 total += price;
-                if(!category.add(categoryId)){
+                if (!category.add(categoryId)) {
                     stack.push(price);
                 }
-            }else if(!stack.isEmpty()&&category.add(categoryId)){
+            } else if (!stack.isEmpty() && category.add(categoryId)) {
                 total += price - stack.pop();
             }
-            ans = Math.max(ans, total + (long) category.size() *  category.size());
+            ans = Math.max(ans, total + (long) category.size() * category.size());
         }
         return ans;
     }
 
 
-    @Data
-    static class MetaData{
-        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT")
-        private Date datetime;
-        private List<Station> stations = new ArrayList<>();
+    public int findLUSlength(String[] strs) {
+        int ans = -1;
+        int n = strs.length;
+
+        for (int i = 0; i < n; i++) {
+            boolean check = true;
+            for (int j = 0; j < n; j++) {
+                if (i != j && isSubseq(strs[i], strs[j])) {
+                    check = false;
+                    break;
+                }
+            }
+            if (check) {
+                ans = Math.max(ans, strs[i].length());
+            }
+        }
+        return ans;
     }
-    @Data
-    static class Station{
-        private String stationid;
-        private Double lat;
-        private Double lon;
-        private String src;
-        private String name;
+
+    public boolean isSubseq(String s, String t) {
+        int ptS = 0, ptT = 0;
+        while (ptS < s.length() && ptT < t.length()) {
+            if (s.charAt(ptS) == t.charAt(ptT)) {
+                ++ptS;
+            }
+            ++ptT;
+        }
+        return ptS == s.length();
     }
+
+
+    public String discountPrices(String sentence, int discount) {
+        double discountRate = 1.0 - (discount / 100.0);
+
+        String[] words = sentence.split(" ");
+
+        for (int i = 0; i < words.length; i++) {
+            if (isDigit(words[i])) {
+                words[i] = String.format("$%.2f", Double.parseDouble(words[i].substring(1)) * discountRate);
+            }
+        }
+        return String.join(" ", words);
+
+    }
+
+    private boolean isDigit(String word) {
+        if (word.length() == 1 || word.charAt(0) != '$') {
+            return false;
+        }
+
+        for (int i = 1; i < word.length(); i++) {
+            if (!Character.isDigit(word.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public int countBeautifulPairs(int[] nums) {
+        int ans = 0;
+        int[] cnt = new int[10];
+        for (int num : nums) {
+            for (int i = 1; i < 10; i++) {
+                if (cnt[i] > 0 && gcd(i, num % 10) == 1) {
+                    ans += cnt[i];
+                }
+            }
+            while (num >= 10) {
+                num /= 10;
+            }
+            cnt[num]++;
+        }
+        return ans;
+    }
+
+    public int gcd(int a, int b) {
+        return b == 0 ? a : gcd(b, b % a);
+    }
+
+    public List<Integer> goodSubsetofBinaryMatrix(int[][] grid) {
+        int m = grid.length; // 行数
+        int n = grid[0].length; // 列数
+        Map<Integer, Integer> mp = new HashMap<>(); // 用于存储二进制值与其对应的行索引
+
+        for (int i = 0; i < m; i++) {
+            int temp = 0;
+            for (int j = 0; j < n; j++) {
+                temp += (grid[i][j] << (n - j - 1));
+            }
+
+            if (temp == 0) {
+                return Arrays.asList(i);
+            }
+
+            for (int j = 0; j < (1 << n); j++) {
+                if ((temp & j) == 0 && mp.containsKey(j)) {
+                    return Arrays.asList(mp.get(i), j);
+                }
+            }
+            mp.put(temp, i);
+        }
+
+        return new ArrayList<>();
+    }
+
+    public String smallestString(String s) {
+        char[] chars = s.toCharArray();
+        int len = chars.length;
+
+        for (int i = 0; i < len; i++) {
+            if (chars[i] > 'a') {
+                for (; i < len && chars[i] > 'a'; i++) {
+                    chars[i]--;
+                }
+                return new String(chars);
+            }
+        }
+        chars[len - 1] = 'z';
+        return new String(chars);
+    }
+
+    public static int sumOfTheDigitsOfHarshadNumber(int x) {
+        int sum = 0;
+        while (x > 0) {
+            sum += (x % 10);
+            x /= 10;
+        }
+        return x % sum == 0 ? sum : -1;
+    }
+
+    public List<Integer> relocateMarbles(int[] nums, int[] moveFrom, int[] moveTo) {
+        Set<Integer> set = new HashSet<>();
+        for (int num : nums) {
+            set.add(num);
+        }
+
+        for (int i = 0; i < moveFrom.length; i++) {
+            if (set.contains(moveFrom[i])) {
+                set.remove(moveFrom[i]);
+                set.add(moveTo[i]);
+            }
+        }
+        return set.stream().sorted().collect(Collectors.toList());
+    }
+
+    //    public int minimumLevels(int[] possible) {
+//        int a = 10;
+//        int n = possible.length;
+//        int sum = 0;
+//        int pre = 0;
+//        for (int val : possible) {
+//            sum += (val == 0 ? 1 : -1);
+//        }
+//
+//        for (int i = 0; i < n; i++) {
+//            int val = possible[i];
+//            val == 0 ? pre += 1 : pre -= 1;
+//            val == 0 ? sum -= 1 : sum += 1;
+//            if (pre == sum) {
+//                return i;
+//            }
+//        }
+//        return -1;
+//    }
+    public int minimumOperations(String num) {
+        int maxDelete = num.length() - (num.contains("0") ? 1 : 0);
+        return minCount(maxDelete, find(num, "00"), find(num, "25"), find(num, "50"), find(num, "75"));
+    }
+
+    private int minCount(int maxDelete, int... i) {
+        int ans = maxDelete;
+
+        for (int num : i) {
+            ans = Math.min(ans, num);
+        }
+
+        return ans;
+    }
+
+    private int find(String num, String s) {
+        int len = num.length();
+        int n1 = num.lastIndexOf(s.charAt(0));
+        if (n1 <= 0) {
+            return len;
+        }
+        int n2 = num.lastIndexOf(s.charAt(1), len - n1);
+        if (n2 <= 0) {
+            return len;
+        }
+        return len - n2 - 2;
+    }
+
+    public int calPoints(String[] operations) {
+        Deque<Integer> deque = new ArrayDeque<>();
+        int ans = 0;
+        for (String operation : operations) {
+            switch (operation) {
+                case "+":
+                    int a = deque.pop();
+                    int b = deque.pop();
+                    deque.push(b);
+                    deque.push(a);
+                    deque.push(a + b);
+                    ans += a + b;
+                    break;
+                case "D":
+                    deque.push(deque.peek() * 2);
+                    ans += deque.peek() * 2;
+                    break;
+                case "C":
+                       ans -= deque.pop();
+                    break;
+                default:
+                    deque.push(Integer.parseInt(operation));
+                    break;
+            }
+        }
+        return ans;
+    }
+
+
+
+    public List<Integer> getGoodIndices(int[][] variables, int target) {
+        List<Integer> ans = new ArrayList<>();
+        for (int i=0;i<variables.length;i++) {
+            int[] variable = variables[i];
+            if(pow(pow(variable[0],variable[1],10),variable[2],variable[3]) == target){
+                ans.add(i);
+            }
+        }
+        return ans;
+    }
+
+    public int pow(int x, int y, int mod){
+        int ans = 1;
+        while (y>0){
+            if(y%2>0){
+                ans = ans * x % mod;
+            }
+            x = x * x % mod;
+            y = y/2;
+        }
+        return ans;
+    }
+
 }
+
+@Data
+class MetaData {
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT")
+    private Date datetime;
+    private List<Station> stations = new ArrayList<>();
+}
+
+@Data
+class Station {
+    private String stationid;
+    private Double lat;
+    private Double lon;
+    private String src;
+    private String name;
+}
+

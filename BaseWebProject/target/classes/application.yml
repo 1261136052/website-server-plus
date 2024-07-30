@@ -1,0 +1,48 @@
+server:
+#  服务器端口
+  port: 8001
+
+logging:
+  level:
+    logger.org.nutz: debug
+    org.nutz.dao.impl.sql.run.NutDaoExecutor: debug
+
+spring:
+  resources:
+    static-locations: file:html
+  devtools:
+    restart:
+      poll-interval: 2s
+      quiet-period: 1999ms
+
+
+
+#email:
+#  host: imap.163.com
+#  port: 993
+#  username: 18138496852@163.com
+#  password: UNFFNKYRLYXBWBVN
+#email:
+#  host: imap.qq.com
+#  port: 993
+#  username: 1261136052@qq.com
+#  password: ednsedngvcfdjjej
+
+#email:
+#  host: pop.qq.com
+#  port: 995
+#  username: 1261136052@qq.com
+#  password: ednsedngvcfdjjej
+
+#email:
+#  host: imap.139.com
+#  port: 993
+#  username: 18819293756@139.com
+#  password: 3ce49d9362971f9d4900
+
+
+email:
+  host: imap.139.com
+  port: 993
+  username: zhuzhuzhucrazy@gmail.com
+  password: ZSDzsd123123
